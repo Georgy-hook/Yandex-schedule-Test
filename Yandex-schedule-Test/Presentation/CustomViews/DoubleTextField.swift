@@ -12,6 +12,7 @@ class DoubleTextField: UIView {
     // MARK: - UI Elements
     private let fromTextField: UITextField = {
         let textField = UITextField()
+        textField.tag = 0
         textField.placeholder = "Откуда"
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -26,6 +27,7 @@ class DoubleTextField: UIView {
     
     private let toTextField: UITextField = {
         let textField = UITextField()
+        textField.tag = 1
         textField.placeholder = "Куда"
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -37,7 +39,9 @@ class DoubleTextField: UIView {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-
+    
+    weak var delegate:ViewControllerProtocol?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
@@ -79,5 +83,10 @@ class DoubleTextField: UIView {
             imageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             imageView.widthAnchor.constraint(equalToConstant: 24),
         ])
+    }
+    
+    func setupDelegates(){
+        toTextField.delegate = delegate
+        fromTextField.delegate = delegate
     }
 }

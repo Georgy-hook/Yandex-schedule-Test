@@ -7,7 +7,12 @@
 
 import UIKit
 
+protocol ViewControllerProtocol: UITextFieldDelegate, AnyObject{
+    
+}
+
 class ViewController: UIViewController {
+    
     // MARK: - UI Elements
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -73,27 +78,27 @@ class ViewController: UIViewController {
         button.addTarget(self, action: #selector(anyButtonTapped), for: .touchUpInside)
         return button
     }()
-
+    
     private lazy var airplaneButton: UIButton = {
         let button = createTransportButton(imageName: "airplane_icon")
         return button
     }()
-
+    
     private lazy var trainButton: UIButton = {
         let button = createTransportButton(imageName: "train_icon")
         return button
     }()
-
+    
     private lazy var tramButton: UIButton = {
         let button = createTransportButton(imageName: "tram_icon")
         return button
     }()
-
+    
     private lazy var busButton: UIButton = {
         let button = createTransportButton(imageName: "bus_icon")
         return button
     }()
-
+    
     private lazy var transportStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [anyButton, airplaneButton, trainButton, tramButton, busButton])
         stackView.axis = .horizontal
@@ -119,8 +124,12 @@ class ViewController: UIViewController {
     }()
     
     private let doubleTextField = DoubleTextField()
-    // MARK: - Variables
+    private let scheduleTableView = ScheduleTableView()
     
+    // MARK: - Variables
+    private let scheduleService = ScheduleServiceImpl(networkClient: DefaultNetworkClient())
+    private let cityService = CityServiceImpl(networkClient: DefaultNetworkClient())
+    private var searchModel = SearchModel()
     
     // MARK: - Life Cycle
     override func viewDidLoad() {
@@ -129,6 +138,18 @@ class ViewController: UIViewController {
         configureUI()
         addSubviews()
         applyConstraints()
+        
+
+        
+        cityService.loadCodeOfCity(name: "Коломна"){result in
+            switch result{
+            case .success(let city):
+                print(city.items.first?.pointKey)
+            case .failure(let error):
+                print(error)
+            }
+            
+        }
     }
     
     // MARK: - Actions
@@ -137,12 +158,15 @@ class ViewController: UIViewController {
         reloadStackView()
         todayButton.backgroundColor = .gray
         todayButton.setTitleColor(.white, for: .normal)
+        searchModel.date = Date()
     }
     
     @objc private func tomorrowButtonTapped() {
         reloadStackView()
+        guard let tomorrowDate = Calendar.current.date(byAdding: .day, value: 1, to: Date()) else { return }
         tomorrowButton.backgroundColor = .gray
         tomorrowButton.setTitleColor(.white, for: .normal)
+        searchModel.date = tomorrowDate
     }
     
     @objc private func chooseDateButtonTapped() {
@@ -156,29 +180,46 @@ class ViewController: UIViewController {
         reloadTransportStackView()
         anyButton.backgroundColor = .gray
         anyButton.setTitleColor(.white, for: .normal)
+        searchModel.transportType = .none
     }
-
+    
     @objc private func transportButtonTapped(_ sender: UIButton) {
         reloadTransportStackView()
-
+        
         switch sender {
         case airplaneButton:
             airplaneButton.backgroundColor = .gray
+            searchModel.transportType = .plane
         case trainButton:
             trainButton.backgroundColor = .gray
+            searchModel.transportType = .train
         case tramButton:
             tramButton.backgroundColor = .gray
+            searchModel.transportType = .suburban
         case busButton:
             busButton.backgroundColor = .gray
+            searchModel.transportType = .bus
         default:
             break
         }
-
-        // Логика для кнопок с иконками транспорта
     }
     
     @objc private func findButtonTapped() {
-        // Логика для кнопки "Найти"
+        guard let from = searchModel.from,
+              let to = searchModel.to,
+              let transportType = searchModel.transportType,
+              let date = searchModel.date 
+        else{ return }
+        
+        
+        scheduleService.loadSchedule(from: from, to: to, transportTypes: transportType.rawValue, date: date){ result in
+            switch result{
+            case .success(let schedule):
+                self.scheduleTableView.set(with: schedule)
+            case .failure(let error):
+                print(error)
+            }
+        }
     }
 }
 
@@ -187,6 +228,9 @@ class ViewController: UIViewController {
 extension ViewController {
     private func configureUI() {
         view.backgroundColor = .white
+        
+        doubleTextField.delegate = self
+        doubleTextField.setupDelegates()
     }
     
     private func addSubviews() {
@@ -195,6 +239,7 @@ extension ViewController {
         view.addSubview(stackView)
         view.addSubview(transportStackView)
         view.addSubview(findButton)
+        view.addSubview(scheduleTableView)
         stackView.addArrangedSubview(todayButton)
         stackView.addArrangedSubview(tomorrowButton)
         stackView.addArrangedSubview(chooseDateButton)
@@ -225,6 +270,10 @@ extension ViewController {
             findButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             findButton.topAnchor.constraint(equalTo: transportStackView.bottomAnchor, constant: 10),
             findButton.heightAnchor.constraint(equalToConstant: 50),
+            scheduleTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scheduleTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scheduleTableView.topAnchor.constraint(equalTo: findButton.bottomAnchor, constant: 8),
+            scheduleTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
     
@@ -233,6 +282,7 @@ extension ViewController {
         button.backgroundColor = UIColor(named: "myLightGray")
         button.setImage(UIImage(named: imageName), for: .normal)
         button.imageView?.contentMode = .scaleAspectFit
+        button.imageView?.tintColor = .black
         button.addTarget(self, action: #selector(transportButtonTapped(_:)), for: .touchUpInside)
         button.heightAnchor.constraint(equalToConstant: 60).isActive = true
         button.widthAnchor.constraint(equalToConstant: 60).isActive = true
@@ -262,5 +312,30 @@ extension ViewController {
         trainButton.backgroundColor = UIColor(named: "myLightGray")
         tramButton.backgroundColor = UIColor(named: "myLightGray")
         busButton.backgroundColor = UIColor(named: "myLightGray")
+    }
+}
+
+extension ViewController:ViewControllerProtocol{
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        guard let cityName = textField.text else { return }
+        if textField.tag == 0{
+            cityService.loadCodeOfCity(name: cityName){result in
+                switch result{
+                case .success(let city):
+                    self.searchModel.from = city.items.first?.pointKey ?? ""
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        } else{
+            cityService.loadCodeOfCity(name: cityName){result in
+                switch result{
+                case .success(let city):
+                    self.searchModel.to = city.items.first?.pointKey ?? ""
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        }
     }
 }
