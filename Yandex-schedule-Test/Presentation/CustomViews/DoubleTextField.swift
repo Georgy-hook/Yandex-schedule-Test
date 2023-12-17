@@ -67,6 +67,7 @@ class DoubleTextField: UIView {
             fromTextField.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             fromTextField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             fromTextField.heightAnchor.constraint(equalToConstant: 30),
+            fromTextField.trailingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: -10),
 
             separatorView.topAnchor.constraint(equalTo: fromTextField.bottomAnchor, constant: 10),
             separatorView.heightAnchor.constraint(equalToConstant: 1),

@@ -32,6 +32,7 @@ class AppDateFormatter {
         if let date = fullDateFormatter.date(from: dateString) {
             let outputFormatter = DateFormatter()
             outputFormatter.dateFormat = "d MMM"
+            outputFormatter.locale = Locale(identifier: "ru_RU")
             return outputFormatter.string(from: date)
         }
         return nil

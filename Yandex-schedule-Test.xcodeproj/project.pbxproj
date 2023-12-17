@@ -28,6 +28,7 @@
 		663D6DD72B2E1E73009B22D2 /* SearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663D6DD62B2E1E73009B22D2 /* SearchModel.swift */; };
 		667FD2932B2C7A7600B76427 /* ScheduleTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667FD2922B2C7A7600B76427 /* ScheduleTableView.swift */; };
 		667FD2952B2C7D0B00B76427 /* ScheduleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667FD2942B2C7D0B00B76427 /* ScheduleTableViewCell.swift */; };
+		66A142C42B2F5924006DC9E4 /* UIViewController + keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A142C32B2F5924006DC9E4 /* UIViewController + keyboard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +55,7 @@
 		663D6DD62B2E1E73009B22D2 /* SearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModel.swift; sourceTree = "<group>"; };
 		667FD2922B2C7A7600B76427 /* ScheduleTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleTableView.swift; sourceTree = "<group>"; };
 		667FD2942B2C7D0B00B76427 /* ScheduleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleTableViewCell.swift; sourceTree = "<group>"; };
+		66A142C32B2F5924006DC9E4 /* UIViewController + keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + keyboard.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +151,7 @@
 			isa = PBXGroup;
 			children = (
 				6610595A2B2B1A8D0010163F /* UIView + extensions.swift */,
+				66A142C32B2F5924006DC9E4 /* UIViewController + keyboard.swift */,
 				663D6DCE2B2DDB45009B22D2 /* AppDateFormatter.swift */,
 			);
 			path = Helpers;
@@ -273,6 +276,7 @@
 				6610593D2B2A26090010163F /* ViewController.swift in Sources */,
 				661059392B2A26090010163F /* AppDelegate.swift in Sources */,
 				667FD2932B2C7A7600B76427 /* ScheduleTableView.swift in Sources */,
+				66A142C42B2F5924006DC9E4 /* UIViewController + keyboard.swift in Sources */,
 				663D6DC72B2DCA6A009B22D2 /* ScheduleService.swift in Sources */,
 				663D6DC12B2DC8E4009B22D2 /* NetworkClient.swift in Sources */,
 				661059582B2B056C0010163F /* DoubleTextField.swift in Sources */,

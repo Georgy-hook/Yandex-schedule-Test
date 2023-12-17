@@ -58,17 +58,6 @@ class ViewController: UIViewController {
         return button
     }()
     
-    private lazy var chooseDateButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("Дата", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.bodyRegular17
-        button.backgroundColor = UIColor(named: "myLightGray")
-        button.addTarget(self, action: #selector(chooseDateButtonTapped), for: .touchUpInside)
-        button.addBorder(to: .left, in: .lightGray, width: 1)
-        return button
-    }()
-    
     private lazy var anyButton: UIButton = {
         let button = UIButton()
         button.setTitle("Любой", for: .normal)
@@ -123,6 +112,36 @@ class ViewController: UIViewController {
         return button
     }()
     
+    private lazy var datePicker: UIDatePicker = {
+        let picker = UIDatePicker()
+        picker.datePickerMode = .date
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        picker.preferredDatePickerStyle = .compact
+        picker.locale = Locale(identifier: "ru_RU")
+        let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: Date())
+        let elevenMonthAhead = Calendar.current.date(byAdding: .month, value: 11, to: Date())
+        picker.minimumDate = oneMonthAgo
+        picker.maximumDate = elevenMonthAhead
+        picker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
+        return picker
+    }()
+    
+    private lazy var datePickerCustomLabel: UILabel = {
+        let label = UILabel()
+        let attachment = NSTextAttachment()
+        attachment.image = UIImage(named: "grid_icon")
+        let attachmentString = NSAttributedString(attachment: attachment)
+        let myString = NSMutableAttributedString(string: "Дата     ")
+        myString.append(attachmentString)
+        label.attributedText = myString
+        label.font = UIFont.bodyRegular17
+        label.textColor = .black
+        label.backgroundColor = UIColor(named: "myLightGray")
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let doubleTextField = DoubleTextField()
     private let scheduleTableView = ScheduleTableView()
     
@@ -134,22 +153,9 @@ class ViewController: UIViewController {
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configureUI()
         addSubviews()
         applyConstraints()
-        
-
-        
-        cityService.loadCodeOfCity(name: "Коломна"){result in
-            switch result{
-            case .success(let city):
-                print(city.items.first?.pointKey)
-            case .failure(let error):
-                print(error)
-            }
-            
-        }
     }
     
     // MARK: - Actions
@@ -169,18 +175,11 @@ class ViewController: UIViewController {
         searchModel.date = tomorrowDate
     }
     
-    @objc private func chooseDateButtonTapped() {
-        reloadStackView()
-        chooseDateButton.backgroundColor = .gray
-        chooseDateButton.setTitleColor(.white, for: .normal)
-        showDatePicker()
-    }
-    
     @objc private func anyButtonTapped() {
         reloadTransportStackView()
         anyButton.backgroundColor = .gray
         anyButton.setTitleColor(.white, for: .normal)
-        searchModel.transportType = .none
+        searchModel.transportType = TransportType.none
     }
     
     @objc private func transportButtonTapped(_ sender: UIButton) {
@@ -189,15 +188,19 @@ class ViewController: UIViewController {
         switch sender {
         case airplaneButton:
             airplaneButton.backgroundColor = .gray
+            airplaneButton.imageView?.tintColor = .white
             searchModel.transportType = .plane
         case trainButton:
             trainButton.backgroundColor = .gray
+            trainButton.imageView?.tintColor = .white
             searchModel.transportType = .train
         case tramButton:
             tramButton.backgroundColor = .gray
+            tramButton.imageView?.tintColor = .white
             searchModel.transportType = .suburban
         case busButton:
             busButton.backgroundColor = .gray
+            busButton.imageView?.tintColor = .white
             searchModel.transportType = .bus
         default:
             break
@@ -208,9 +211,8 @@ class ViewController: UIViewController {
         guard let from = searchModel.from,
               let to = searchModel.to,
               let transportType = searchModel.transportType,
-              let date = searchModel.date 
+              let date = searchModel.date
         else{ return }
-        
         
         scheduleService.loadSchedule(from: from, to: to, transportTypes: transportType.rawValue, date: date){ result in
             switch result{
@@ -221,6 +223,14 @@ class ViewController: UIViewController {
             }
         }
     }
+    
+    @objc private func datePickerValueChanged() {
+        reloadStackView()
+        datePickerCustomLabel.backgroundColor = .gray
+        datePickerCustomLabel.textColor = .white
+        let selectedDate = datePicker.date
+        searchModel.date = selectedDate
+    }
 }
 
 
@@ -228,6 +238,8 @@ class ViewController: UIViewController {
 extension ViewController {
     private func configureUI() {
         view.backgroundColor = .white
+        
+        hideKeyboardWhenTappedAround()
         
         doubleTextField.delegate = self
         doubleTextField.setupDelegates()
@@ -240,9 +252,10 @@ extension ViewController {
         view.addSubview(transportStackView)
         view.addSubview(findButton)
         view.addSubview(scheduleTableView)
+        datePicker.addSubview(datePickerCustomLabel)
         stackView.addArrangedSubview(todayButton)
         stackView.addArrangedSubview(tomorrowButton)
-        stackView.addArrangedSubview(chooseDateButton)
+        stackView.addArrangedSubview(datePicker)
         transportStackView.addArrangedSubview(anyButton)
         transportStackView.addArrangedSubview(airplaneButton)
         transportStackView.addArrangedSubview(trainButton)
@@ -261,7 +274,7 @@ extension ViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             stackView.topAnchor.constraint(equalTo: doubleTextField.bottomAnchor, constant: 10),
-            stackView.heightAnchor.constraint(equalToConstant: 50),
+            stackView.heightAnchor.constraint(equalToConstant: 45),
             transportStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             transportStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             transportStackView.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 10),
@@ -273,7 +286,11 @@ extension ViewController {
             scheduleTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scheduleTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scheduleTableView.topAnchor.constraint(equalTo: findButton.bottomAnchor, constant: 8),
-            scheduleTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            scheduleTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            datePickerCustomLabel.leadingAnchor.constraint(equalTo: datePicker.leadingAnchor),
+            datePickerCustomLabel.trailingAnchor.constraint(equalTo: datePicker.trailingAnchor),
+            datePickerCustomLabel.topAnchor.constraint(equalTo: datePicker.topAnchor),
+            datePickerCustomLabel.bottomAnchor.constraint(equalTo: datePicker.bottomAnchor),
         ])
     }
     
@@ -292,17 +309,13 @@ extension ViewController {
 
 // MARK: - Helper Methods
 extension ViewController {
-    private func showDatePicker() {
-        // Implement date picker presentation logic here
-    }
-    
     private func reloadStackView(){
         todayButton.backgroundColor = UIColor(named: "myLightGray")
         todayButton.setTitleColor(.black, for: .normal)
         tomorrowButton.backgroundColor = UIColor(named: "myLightGray")
         tomorrowButton.setTitleColor(.black, for: .normal)
-        chooseDateButton.backgroundColor = UIColor(named: "myLightGray")
-        chooseDateButton.setTitleColor(.black, for: .normal)
+        datePickerCustomLabel.backgroundColor = UIColor(named: "myLightGray")
+        datePickerCustomLabel.textColor = .black
     }
     
     private func reloadTransportStackView() {
@@ -312,6 +325,10 @@ extension ViewController {
         trainButton.backgroundColor = UIColor(named: "myLightGray")
         tramButton.backgroundColor = UIColor(named: "myLightGray")
         busButton.backgroundColor = UIColor(named: "myLightGray")
+        airplaneButton.imageView?.tintColor = .black
+        trainButton.imageView?.tintColor = .black
+        tramButton.imageView?.tintColor = .black
+        busButton.imageView?.tintColor = .black
     }
 }
 
@@ -336,6 +353,11 @@ extension ViewController:ViewControllerProtocol{
                     print(error)
                 }
             }
+        }
+        
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            textField.resignFirstResponder()
+            return true
         }
     }
 }

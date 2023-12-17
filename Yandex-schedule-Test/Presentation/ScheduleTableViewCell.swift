@@ -12,92 +12,141 @@ final class ScheduleTableViewCell: UITableViewCell {
     
     // MARK: - UI Elements
     
-    private let transportIconImageView: UIImageView = {
+    private lazy var  transportIconImageView: UIImageView = {
         let imageView = UIImageView()
-        // Установите изображение для иконки транспорта (например, "bus_icon")
-        imageView.image = UIImage(named: "bus_icon")
         imageView.contentMode = .scaleAspectFit
+        imageView.tintColor = UIColor(named: "myYellow")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
-    private let routeLabel: UILabel = {
+    private lazy var  routeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        label.font = UIFont.bodyBold14
+        label.numberOfLines = 0
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let transportTypeLabel: UILabel = {
+    private lazy var transportTypeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.bodyRegular12
+        label.numberOfLines = 0
+        label.textColor = .black
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var  toDateLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.bodyRegular12
+        label.textAlignment = .right
         label.textColor = .gray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let toDateLabel: UILabel = {
+    private lazy var  toTimeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.bodyBold20
+        label.textAlignment = .right
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let toTimeLabel: UILabel = {
+    private lazy var  toDepartureStationLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        label.font = UIFont.bodyRegular12
+        label.textColor = .black
+        label.textAlignment = .right
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var  fromDateLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.bodyRegular12
+        label.textAlignment = .left
+        label.textColor = .gray
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var  fromTimeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.bodyBold20
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let toDepartureStationLabel: UILabel = {
+    private lazy var  fromDepartureStationLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.bodyRegular12
         label.textColor = .black
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let fromDateLabel: UILabel = {
+    private lazy var  travelTimeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .black
+        label.font = UIFont.bodyBold14
+        label.textAlignment = .center
+        label.textColor = .gray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let fromTimeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-        label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private lazy var routeStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [routeLabel, transportTypeLabel])
+        stackView.axis = .vertical
+        stackView.spacing = 0
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
     }()
     
-    private let fromDepartureStationLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .black
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private lazy var mainStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [dateStackView, timeStackView,stationStackView])
+        stackView.axis = .vertical
+        stackView.spacing = 0
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
     }()
     
-    private let travelTimeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private lazy var dateStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [fromDateLabel, toDateLabel])
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.spacing = 4
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
     }()
     
+    private lazy var timeStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [ fromTimeLabel, travelTimeLabel, toTimeLabel])
+        stackView.distribution = .fillEqually
+        stackView.axis = .horizontal
+        stackView.spacing = 0
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+    
+    private lazy var stationStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [fromDepartureStationLabel, toDepartureStationLabel])
+        stackView.axis = .horizontal
+        stackView.spacing = 4
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+    
+    // MARK: - Variables
     let dateFormatter = AppDateFormatter.shared
-    // MARK: - Initialization
     
+    // MARK: - Initialization
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .clear
@@ -111,19 +160,11 @@ final class ScheduleTableViewCell: UITableViewCell {
 }
 
 // MARK: - Layout
-
 private extension ScheduleTableViewCell {
     func addSubviews() {
+        addSubview(routeStackView)
         addSubview(transportIconImageView)
-        addSubview(routeLabel)
-        addSubview(transportTypeLabel)
-        addSubview(toDateLabel)
-        addSubview(toTimeLabel)
-        addSubview(toDepartureStationLabel)
-        addSubview(fromDateLabel)
-        addSubview(fromTimeLabel)
-        addSubview(fromDepartureStationLabel)
-        addSubview(travelTimeLabel)
+        addSubview(mainStackView)
     }
     
     func applyConstraints() {
@@ -133,34 +174,15 @@ private extension ScheduleTableViewCell {
             transportIconImageView.widthAnchor.constraint(equalToConstant: 24),
             transportIconImageView.heightAnchor.constraint(equalToConstant: 24),
             
-            routeLabel.leadingAnchor.constraint(equalTo: transportIconImageView.trailingAnchor, constant: 8),
-            routeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-            routeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            routeStackView.leadingAnchor.constraint(equalTo: transportIconImageView.trailingAnchor, constant: 8),
+            routeStackView.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            routeStackView.widthAnchor.constraint(equalToConstant: 90),
+            routeStackView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
             
-            transportTypeLabel.leadingAnchor.constraint(equalTo: transportIconImageView.trailingAnchor, constant: 8),
-            transportTypeLabel.topAnchor.constraint(equalTo: routeLabel.bottomAnchor, constant: 4),
-            transportTypeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            
-            toDateLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            toDateLabel.topAnchor.constraint(equalTo: topAnchor, constant: 4),
-            
-            toTimeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            toTimeLabel.topAnchor.constraint(equalTo: toDateLabel.bottomAnchor, constant: 4),
-            
-            toDepartureStationLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            toDepartureStationLabel.topAnchor.constraint(equalTo: toTimeLabel.bottomAnchor, constant: 4),
-            
-            travelTimeLabel.trailingAnchor.constraint(equalTo: toTimeLabel.leadingAnchor, constant: -8),
-            travelTimeLabel.topAnchor.constraint(equalTo: toTimeLabel.topAnchor),
-            
-            fromDateLabel.trailingAnchor.constraint(equalTo: travelTimeLabel.leadingAnchor, constant: -8),
-            fromDateLabel.topAnchor.constraint(equalTo: toDateLabel.topAnchor),
-            
-            fromTimeLabel.trailingAnchor.constraint(equalTo: travelTimeLabel.leadingAnchor, constant: -8),
-            fromTimeLabel.topAnchor.constraint(equalTo: toTimeLabel.topAnchor),
-            
-            fromDepartureStationLabel.trailingAnchor.constraint(equalTo: travelTimeLabel.leadingAnchor, constant: -8),
-            fromDepartureStationLabel.topAnchor.constraint(equalTo: toDepartureStationLabel.topAnchor),
+            mainStackView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+            mainStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+            mainStackView.leadingAnchor.constraint(equalTo: routeStackView.trailingAnchor, constant: 20),
+            mainStackView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
         ])
     }
 }
@@ -188,13 +210,21 @@ extension ScheduleTableViewCell{
     func set(with segment:SimplifiedSegment){
         routeLabel.text = segment.title
         transportTypeLabel.text = segment.transportSubtype
-        toDateLabel.text = "15 дек."
-        toTimeLabel.text = "14:50"
-        toDepartureStationLabel.text = segment.from
-        fromDateLabel.text = "15 дек."
-        fromTimeLabel.text = "16:50"
-        fromDepartureStationLabel.text = segment.to
+        toDepartureStationLabel.text = segment.to
+        fromDepartureStationLabel.text = segment.from
         travelTimeLabel.text = formatTravelTime(segment.duration)
+        switch segment.transportType{
+        case .none:
+            return
+        case .plane:
+            transportIconImageView.image = UIImage(named: "airplane_icon")
+        case .train:
+            transportIconImageView.image = UIImage(named: "train_icon")
+        case .suburban:
+            transportIconImageView.image = UIImage(named: "tram_icon")
+        case .bus:
+            transportIconImageView.image = UIImage(named: "bus_icon")
+        }
         guard let arrivalFormattedDate = AppDateFormatter.shared.formatFullDate(segment.arrival),
               let arrivalFormattedTime = AppDateFormatter.shared.formatTime(segment.arrival),
               let departureFormattedDate = AppDateFormatter.shared.formatFullDate(segment.departure),

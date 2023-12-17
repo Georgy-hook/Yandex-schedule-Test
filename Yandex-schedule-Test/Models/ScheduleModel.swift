@@ -101,7 +101,7 @@ struct Codes: Codable {
 
 // MARK: - TransportType
 enum TransportType: String, Codable {
-    case none
+    case none = ""
     case plane
     case train
     case suburban
